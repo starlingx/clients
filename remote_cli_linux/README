@@ -1,0 +1,87 @@
+
+Copyright (c) 2019 Wind River Systems, Inc.
+SPDX-License-Identifier: Apache-2.0
+--------------------------------------------------
+
+
+StarlingX Remote CLI Clients
+--------------------------------------------------
+
+To enable access to StarlingX CLI remotely, docker images
+containing the CLI and Client packages have been created,
+for installation on a remote workstation.  Two CLI/Client
+docker images are used; one for the Kubernetes platform
+CLIs/Clients and one for the OpenStack application CLIs/Clients.
+
+This SDK Module includes scripts to configure and provide aliases
+for Kubernetes platform and OpenStack application CLI.
+
+
+Dependencies
+-------------------------------------------------
+Please make sure Docker is installed on the remote workstation
+before using the remote CLI clients. The proper docker images
+are pulled automatically by the client scripts.
+
+For instructions on how to install Docker for your system please
+follow instructions at the following link: https://docs.docker.com/install/
+
+
+Using the Remote CLI Clients on a Linux machine:
+------------------------------------------------
+To install the clients on a Linux machine follow these steps:
+
+1.   Untar the provided SDK module tarball
+
+2.   Download the openrc file from Horizon.
+     Log in to Horizon as the user and tenant that you want to use the
+     remote CLIs as, go to:
+     Project -> API Access -> Download Openstack RC file -> Openstack RC file
+     NOTE: You can do this for either the Kubernetes platform Horizon or
+           OpenStack application Horizon side, or both
+
+3.   Configure the clients for Kubernetes platform / OpenStack application side
+     Kubernetes platform side:
+         ./configure_client.sh -t platform -r admin_openrc.sh
+         By default this will generate a remote_client_platform.sh file
+     Openstack application side:
+         ./configure_client.sh -t openstack -r admin_openrc.sh
+         By default this will generate a remote_client_openstack.sh file
+
+4.   When access to the Kubernetes platform side is required, on your console,
+     source the platform side generated at step 3.
+     Example: source remote_client_platform.sh
+
+     When access to the Openstack application side is required, on your console,
+     source the platform side generated at step 3.
+     Example: source remote_client_openstack.sh
+
+     When prompted, enter your openstack password.
+
+     And then execute either platform or openstack application CLI commands
+
+     The sourcing of the config files will also populate aliases for
+     platform/application clients.
+
+     NOTE: do not source both the platform and application config
+           files from the same console. To use both the kubernetes
+           platform and openstack application remote clients, source
+           each config file from separate consoles.
+
+5.   For commands that require local filesystem access, you can configure a work
+     directory as part of the configure_client.sh script.
+
+     The configuration parameter is "-w" and by default it uses the local folder
+     from where the configuration script was called.
+
+     This working directory is mounted at "/wd" in the docker container.
+
+     If commands need access to local files, copy the files in your configured
+     work directory and then provide the command with the path to the mounted
+     folder inside the container.
+
+     Example (uploading an image to glance for the openstack application):
+     1. cp centos63.qcow2 <configured_work_dir>/
+
+     2. openstack image create --disk-format qcow2 --container-format bare \
+       --public --file /wd/centos63.qcow2 centos63-image
