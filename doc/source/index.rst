@@ -14,9 +14,9 @@ Links
 * Code Review: `Gerrit`_
 * Bugs: `Storyboard`_
 
-.. _stx-clients: https://git.starlingx.io/cgit/stx-clients/
-.. _Gerrit: https://review.openstack.org/#/q/project:openstack/stx-clients
-.. _Storyboard: https://storyboard.openstack.org/#!/project/openstack/stx-clients
+.. _stx-clients: https://opendev.org/starlingx/clients
+.. _Gerrit: https://review.opendev.org/#/q/project:starlingx/clients
+.. _Storyboard: https://storyboard.openstack.org/#!/project/starlingx/clients
 
 Indices and Tables
 ==================
