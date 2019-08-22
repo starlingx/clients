@@ -6,10 +6,15 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
+KUBE_CFG_PATH="/root/.kube/config"
+
 if [[ "$CONFIG_TYPE" = "platform" ]]; then
     CLIENT_IMAGE_NAME="docker.io/starlingx/stx-platformclients:master-centos-stable-latest"
+    # We only need to configure the kubernetes authentication file on the platform container
+    VOLUME_LIST="--volume ${OSC_WORKDIR}:/wd --volume ${K8S_CONFIG_FILE}:${KUBE_CFG_PATH}"
 else
     CLIENT_IMAGE_NAME="docker.io/starlingx/stx-openstackclients:master-centos-stable-latest"
+    VOLUME_LIST="--volume ${OSC_WORKDIR}:/wd"
 fi
 
 # Environment variables related to keystone authentication
@@ -31,7 +36,7 @@ for exp in $EXPORTS; do
 done
 
 if [ -z "$2" ]; then
-    exec docker run -ti ${COMMAND_ENV} --volume ${OSC_WORKDIR}:/wd --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
+    exec docker run -ti ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
 else
-    exec docker run -t ${COMMAND_ENV} --volume ${OSC_WORKDIR}:/wd --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
+    exec docker run -t ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
 fi

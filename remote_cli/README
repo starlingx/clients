@@ -40,15 +40,62 @@ To install the clients on a Linux machine follow these steps:
      NOTE: You can do this for either the Kubernetes platform Horizon or
            OpenStack application Horizon side, or both
 
-3.   Configure the clients for Kubernetes platform / OpenStack application side
+3.   For kubectl and helm commands to work remotely, you must configure a kubernetes
+     service account on the target system and generate a configuration file based
+     on that service account. The following script is provided to automate the
+     creation of the service account and generation of the configuration file.
+     Run the following commands logged in as root.
+
+USER="adminuser"
+OUTPUT_FILE="temp-kubeconfig"
+
+cat <<EOF > admin-login.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: ${USER}
+  namespace: kube-system
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: admin-user
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: cluster-admin
+subjects:
+- kind: ServiceAccount
+  name: ${USER}
+  namespace: kube-system
+EOF
+
+kubectl apply -f admin-login.yaml
+TOKEN_DATA=$(kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep ${USER} | awk '{print $1}') | grep "token:" | awk '{print $2}')
+source /etc/platform/openrc
+OAM_IP=$(system oam-show |grep oam_ip| awk '{print $4}')
+
+kubectl config --kubeconfig ${OUTPUT_FILE} set-cluster stxcluster --server=https://${OAM_IP}:6443 --insecure-skip-tls-verify
+kubectl config --kubeconfig ${OUTPUT_FILE} set-credentials ${USER} --token=$TOKEN_DATA
+kubectl config --kubeconfig ${OUTPUT_FILE} set-context stxcluster-default --cluster=stxcluster --user ${USER} --namespace=default
+kubectl config --kubeconfig ${OUTPUT_FILE} use-context stxcluster-default
+
+
+     You can customize the service account name and the output configuration file
+     by changing the USER and OUTPUT_FILE variables.
+
+     Copy the generated file on the machine where the remote clients are deployed.
+     The file should be given as a parameter to the "configure_client" script.
+
+4.   Configure the clients for Kubernetes platform / OpenStack application side
      Kubernetes platform side:
-         ./configure_client.sh -t platform -r admin_openrc.sh
+         ./configure_client.sh -t platform -r admin_openrc.sh -k temp-kubeconfig
          By default this will generate a remote_client_platform.sh file
      Openstack application side:
          ./configure_client.sh -t openstack -r admin_openrc.sh
          By default this will generate a remote_client_openstack.sh file
 
-4.   When access to the Kubernetes platform side is required, on your console,
+5.   When access to the Kubernetes platform side is required, on your console,
      source the platform side generated at step 3.
      Example: source remote_client_platform.sh
 
@@ -68,7 +115,7 @@ To install the clients on a Linux machine follow these steps:
            platform and openstack application remote clients, source
            each config file from separate consoles.
 
-5.   For commands that require local filesystem access, you can configure a work
+6.   For commands that require local filesystem access, you can configure a work
      directory as part of the configure_client.sh script.
 
      The configuration parameter is "-w" and by default it uses the local folder

@@ -10,6 +10,7 @@
 RC_FILE="admin-openrc.sh"
 CONF_FILE=remote_client_config.sh
 ALIAS_FILE=config_aliases.sh
+K8S_FILE="temp-kubeconfig"
 WORK_DIR='.'
 custom_conf_file=0
 explicit_client_type=0
@@ -25,7 +26,7 @@ fi
 
 usage(){
     echo "Usage:"
-    echo "configure_client [-t client_type] [-h] [-w workdir] [-o outputfile] [-r RC_FILE]"
+    echo "configure_client [-t client_type] [-h] [-w workdir] [-o outputfile] [-r RC_FILE] [-k k8s_file]"
     echo "-h                show help options"
     echo "-t client_type    type of client configuration (platform/openstack)"
     echo "                  (default value is platform)"
@@ -34,10 +35,12 @@ usage(){
     echo "-o output         output RC file"
     echo "                  (default is remote_client_<app/platform>.sh)"
     echo "-r RC_FILE        tenant RC file"
-    echo "                  (default value is admin-openrc.sh"
+    echo "                  (default value is admin-openrc.sh)"
+    echo "-k k8s_file       kubernetis config file"
+    echo "                  (default value is temp-kubeconfig)"
 }
 
-while getopts ":hr:w:o:t:" opt; do
+while getopts ":hr:w:o:t:k:" opt; do
     case $opt in
         h)
             usage
@@ -56,6 +59,9 @@ while getopts ":hr:w:o:t:" opt; do
         t)
             CLIENT_TYPE=${OPTARG}
             explicit_client_type=1
+            ;;
+        k)
+            K8S_FILE=${OPTARG}
             ;;
         *)
             echo "Invalid parameter provided"
@@ -94,6 +100,12 @@ if [[ ! -f "$RC_FILE" ]]; then
     exit 1
 fi
 
+# Check if input RC file path actually exists
+if [[ "$CONFIG_TYPE" = "platform" && ! -f "$K8S_FILE" ]]; then
+    echo "ERROR: File at location $K8S_FILE does NOT exist"
+    exit 1
+fi
+
 # Delete previous config file
 rm -f $CONF_FILE
 
@@ -111,6 +123,14 @@ if [[ $WORK_DIR = '/'* ]]; then
     echo "export OSC_WORKDIR=${WORK_DIR}" >> $CONF_FILE
 else
     echo "export OSC_WORKDIR=$(pwd)/${WORK_DIR}" >> $CONF_FILE
+fi
+
+if [[ "$CONFIG_TYPE" = "platform" ]]; then
+    if [[ $K8S_FILE = '/'* ]]; then
+        echo "export K8S_CONFIG_FILE=${K8S_FILE}" >> $CONF_FILE
+    else
+        echo "export K8S_CONFIG_FILE=$(pwd)/${K8S_FILE}" >> $CONF_FILE
+    fi
 fi
 
 echo "source ${PATH_TO_SCRIPT}/$ALIAS_FILE" >> $CONF_FILE
