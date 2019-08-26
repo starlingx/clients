@@ -11,6 +11,7 @@ RC_FILE="admin-openrc.sh"
 CONF_FILE=remote_client_config.sh
 ALIAS_FILE=config_aliases.sh
 K8S_FILE="temp-kubeconfig"
+TAG_FILE=docker_image_version.sh
 WORK_DIR='.'
 custom_conf_file=0
 explicit_client_type=0
@@ -134,3 +135,4 @@ if [[ "$CONFIG_TYPE" = "platform" ]]; then
 fi
 
 echo "source ${PATH_TO_SCRIPT}/$ALIAS_FILE" >> $CONF_FILE
+echo "source ${PATH_TO_SCRIPT}/$TAG_FILE" >> $CONF_FILE
