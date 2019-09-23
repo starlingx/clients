@@ -9,11 +9,11 @@
 KUBE_CFG_PATH="/root/.kube/config"
 
 if [[ "$CONFIG_TYPE" = "platform" ]]; then
-    CLIENT_IMAGE_NAME="docker.io/starlingx/stx-platformclients:${DOCKER_IMAGE_TAG}"
+    CLIENT_IMAGE_NAME="docker.io/starlingx/stx-platformclients:${PLATFORM_DOCKER_IMAGE_TAG}"
     # We only need to configure the kubernetes authentication file on the platform container
     VOLUME_LIST="--volume ${OSC_WORKDIR}:/wd --volume ${K8S_CONFIG_FILE}:${KUBE_CFG_PATH}"
 else
-    CLIENT_IMAGE_NAME="docker.io/starlingx/stx-openstackclients:${DOCKER_IMAGE_TAG}"
+    CLIENT_IMAGE_NAME="docker.io/starlingx/stx-openstackclients:${APPLICATION_DOCKER_IMAGE_TAG}"
     VOLUME_LIST="--volume ${OSC_WORKDIR}:/wd"
 fi
 

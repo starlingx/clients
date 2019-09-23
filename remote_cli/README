@@ -73,7 +73,12 @@ EOF
 kubectl apply -f admin-login.yaml
 TOKEN_DATA=$(kubectl -n kube-system describe secret $(kubectl -n kube-system get secret | grep ${USER} | awk '{print $1}') | grep "token:" | awk '{print $2}')
 source /etc/platform/openrc
-OAM_IP=$(system oam-show |grep oam_ip| awk '{print $4}')
+OAM_IP=$(system oam-show |grep oam_floating_ip| awk '{print $4}')
+if [ -z "$OAM_IP" ]; then
+    # AIO-SX doesn't use oam_floating_ip, but instead uses just oam_ip
+    OAM_IP=$(system oam-show |grep oam_ip| awk '{print $4}')
+fi
+
 
 kubectl config --kubeconfig ${OUTPUT_FILE} set-cluster stxcluster --server=https://${OAM_IP}:6443 --insecure-skip-tls-verify
 kubectl config --kubeconfig ${OUTPUT_FILE} set-credentials ${USER} --token=$TOKEN_DATA
@@ -96,11 +101,11 @@ kubectl config --kubeconfig ${OUTPUT_FILE} use-context stxcluster-default
          By default this will generate a remote_client_openstack.sh file
 
 5.   When access to the Kubernetes platform side is required, on your console,
-     source the platform side generated at step 3.
+     source the platform side generated at step 4.
      Example: source remote_client_platform.sh
 
      When access to the Openstack application side is required, on your console,
-     source the platform side generated at step 3.
+     source the platform side generated at step 4.
      Example: source remote_client_openstack.sh
 
      When prompted, enter your openstack password.
