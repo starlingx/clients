@@ -16,7 +16,7 @@ else
 fi
 
 if [[ "$CONFIG_TYPE" = "platform" ]]; then
-    SERVICES="system fm openstack kubectl helm"
+    SERVICES="system fm openstack dcmanager kubectl helm"
     alias "platform_shell"="${PATH_TO_SCRIPT}/client_wrapper.sh /bin/bash"
 else
     SERVICES="openstack nova cinder glance heat"
