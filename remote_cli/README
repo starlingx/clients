@@ -137,3 +137,15 @@ kubectl config --kubeconfig ${OUTPUT_FILE} use-context stxcluster-default
 
      2. openstack image create --disk-format qcow2 --container-format bare \
        --public --file /wd/centos63.qcow2 centos63-image
+
+7.   Some commands used by remote CLI are designed to leave you in a shell prompt.
+     Examples of such commands are "openstack" or "kubectl exec -ti <pod_name>
+     -- /bin/bash". There are cases where the mechanism for identifying commands
+     that should leave you in a shell prompt is not identifying them correctly.
+     If users encounter such scenarios, they can force the shell or force disable
+     the shell options using the FORCE_SHELL or FORCE_NO_SHELL variables before
+     the command. You cannot use both variables at the same time.
+
+     Examples:
+     - force shell: FORCE_SHELL=true kubectl exec -ti <pod_name> -- /bin/bash
+     - disable shell: FORCE_NO_SHELL=true kubectl exec <pod_name> -- ls

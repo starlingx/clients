@@ -35,8 +35,27 @@ for exp in $EXPORTS; do
     fi
 done
 
-if [ -z "$2" ]; then
-    exec docker run -ti ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
+if [[ -z "$FORCE_SHELL" ]] || [[ "$FORCE_SHELL" != "true" ]]; then
+    FORCE_SHELL="false"
+fi
+
+if [[ -z "$FORCE_NO_SHELL" ]] || [[ "$FORCE_NO_SHELL" != "true" ]]; then
+    FORCE_NO_SHELL="false"
+fi
+
+if [[ "$FORCE_SHELL" == "true" ]] && [[ "$FORCE_NO_SHELL" == "true" ]]; then
+    echo "Error: cannot set both FORCE_SHELLL and FORCE_NO_SHELL variables at the same time".
+    echo "Unset one of them and re-run the command"
+    exit 1
+fi
+
+
+if [[ "$FORCE_SHELL" == "true" ]]; then
+    exec docker run --rm -ti ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
+elif [[ "$FORCE_NO_SHELL" == "true" ]]; then
+    exec docker run --rm -t ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
+elif [ -z "$2" ]; then
+    exec docker run --rm -ti ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
 else
-    exec docker run -t ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
+    exec docker run --rm -t ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
 fi
