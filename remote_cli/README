@@ -26,6 +26,15 @@ are pulled automatically by the client scripts.
 For instructions on how to install Docker for your system please
 follow instructions at the following link: https://docs.docker.com/install/
 
+On Windows, cygwin and winpty need to be installed as well.
+Follow instruction on how to install cygwin at: https://www.cygwin.com/
+
+For winpty, download the latest release tarball for cygwin
+at https://github.com/rprichard/winpty/releases
+After downloading the tarball, extract it to any location and change the
+Windows PATH variable to include "bin" folder from the extracted
+winpty folder
+
 
 Using the Remote CLI Clients on a Linux machine:
 ------------------------------------------------

@@ -8,13 +8,25 @@
 
 KUBE_CFG_PATH="/root/.kube/config"
 
+SHELL_TYPE=$(uname -s)
+
 if [[ "$CONFIG_TYPE" = "platform" ]]; then
     CLIENT_IMAGE_NAME="docker.io/starlingx/stx-platformclients:${PLATFORM_DOCKER_IMAGE_TAG}"
     # We only need to configure the kubernetes authentication file on the platform container
-    VOLUME_LIST="--volume ${OSC_WORKDIR}:/wd --volume ${K8S_CONFIG_FILE}:${KUBE_CFG_PATH}"
+    if [[ "${SHELL_TYPE}" == *"CYGWIN"* ]]; then
+        # On Windows 10, native docker needs the full windows path, not the UNIX one,
+        # so we pass the UNIX path through cygpath
+        VOLUME_LIST="--volume $(cygpath -m ${OSC_WORKDIR}):/wd --volume $(cygpath -m ${K8S_CONFIG_FILE}):${KUBE_CFG_PATH}"
+    else
+        VOLUME_LIST="--volume ${OSC_WORKDIR}:/wd --volume ${K8S_CONFIG_FILE}:${KUBE_CFG_PATH}"
+    fi
 else
     CLIENT_IMAGE_NAME="docker.io/starlingx/stx-openstackclients:${APPLICATION_DOCKER_IMAGE_TAG}"
-    VOLUME_LIST="--volume ${OSC_WORKDIR}:/wd"
+    if [[ "${SHELL_TYPE}" == *"CYGWIN"* ]]; then
+        VOLUME_LIST="--volume $(cygpath -m ${OSC_WORKDIR}):/wd"
+    else
+        VOLUME_LIST="--volume ${OSC_WORKDIR}:/wd"
+    fi
 fi
 
 # Environment variables related to keystone authentication
@@ -49,13 +61,20 @@ if [[ "$FORCE_SHELL" == "true" ]] && [[ "$FORCE_NO_SHELL" == "true" ]]; then
     exit 1
 fi
 
+if [[ "${SHELL_TYPE}" == *"CYGWIN"* ]]; then
+    # To fully support interactive shell in docker under cygwin
+    # we need to prefix the docker command with winpty
+    SHELL_COMMAND="winpty docker"
+else
+    SHELL_COMMAND="docker"
+fi
 
 if [[ "$FORCE_SHELL" == "true" ]]; then
-    exec docker run --rm -ti ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
+    exec ${SHELL_COMMAND} run --rm -ti ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
 elif [[ "$FORCE_NO_SHELL" == "true" ]]; then
-    exec docker run --rm -t ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
+    exec ${SHELL_COMMAND} run --rm -t ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
 elif [ -z "$2" ]; then
-    exec docker run --rm -ti ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
+    exec ${SHELL_COMMAND} run --rm -ti ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
 else
-    exec docker run --rm -t ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
+    exec ${SHELL_COMMAND} run --rm -t ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
 fi
