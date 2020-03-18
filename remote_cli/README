@@ -42,6 +42,15 @@ To install the clients on a Linux machine follow these steps:
 
 1.   Untar the provided SDK module tarball
 
+     If you want to use your own docker images for remote-clients or
+     pushed the default images to your own private docker registry,
+     you can edit the PLATFORM_DOCKER_IMAGE and APPLICATION_DOCKER_IMAGE
+     variables in the docker_image_versions.sh file.
+
+     NOTE: If you are pulling images from custom docker registries that require
+           authentication, use the "docker login" command to login to that custom
+           registry, before attempting to run commands for the first time.
+
 2.   Download the openrc file from Horizon.
      Log in to Horizon as the user and tenant that you want to use the
      remote CLIs as, go to:

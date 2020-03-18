@@ -11,7 +11,7 @@ KUBE_CFG_PATH="/root/.kube/config"
 SHELL_TYPE=$(uname -s)
 
 if [[ "$CONFIG_TYPE" = "platform" ]]; then
-    CLIENT_IMAGE_NAME="docker.io/starlingx/stx-platformclients:${PLATFORM_DOCKER_IMAGE_TAG}"
+    CLIENT_IMAGE_NAME="${PLATFORM_DOCKER_IMAGE}"
     # We only need to configure the kubernetes authentication file on the platform container
     if [[ "${SHELL_TYPE}" == *"CYGWIN"* ]]; then
         # On Windows 10, native docker needs the full windows path, not the UNIX one,
@@ -21,7 +21,7 @@ if [[ "$CONFIG_TYPE" = "platform" ]]; then
         VOLUME_LIST="--volume ${OSC_WORKDIR}:/wd --volume ${K8S_CONFIG_FILE}:${KUBE_CFG_PATH}"
     fi
 else
-    CLIENT_IMAGE_NAME="docker.io/starlingx/stx-openstackclients:${APPLICATION_DOCKER_IMAGE_TAG}"
+    CLIENT_IMAGE_NAME="${APPLICATION_DOCKER_IMAGE}"
     if [[ "${SHELL_TYPE}" == *"CYGWIN"* ]]; then
         VOLUME_LIST="--volume $(cygpath -m ${OSC_WORKDIR}):/wd"
     else
