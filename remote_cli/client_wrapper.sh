@@ -70,11 +70,11 @@ else
 fi
 
 if [[ "$FORCE_SHELL" == "true" ]]; then
-    exec ${SHELL_COMMAND} run --rm -ti ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
+    exec ${SHELL_COMMAND} run --rm --network host -ti ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
 elif [[ "$FORCE_NO_SHELL" == "true" ]]; then
-    exec ${SHELL_COMMAND} run --rm -t ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
+    exec ${SHELL_COMMAND} run --rm --network host -t ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
 elif [ -z "$2" ]; then
-    exec ${SHELL_COMMAND} run --rm -ti ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
+    exec ${SHELL_COMMAND} run --rm --network host -ti ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
 else
-    exec ${SHELL_COMMAND} run --rm -t ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
+    exec ${SHELL_COMMAND} run --rm --network host -t ${COMMAND_ENV} ${VOLUME_LIST} --workdir /wd ${CLIENT_IMAGE_NAME} "$@"
 fi

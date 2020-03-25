@@ -96,6 +96,11 @@ if [ -z "$OAM_IP" ]; then
     # AIO-SX doesn't use oam_floating_ip, but instead uses just oam_ip
     OAM_IP=$(system oam-show |grep oam_ip| awk '{print $4}')
 fi
+# If it's an IPv6 address we must enclose it in brackets
+if [[ $OAM_IP =~ .*:.* ]]; then
+    OAM_IP="[${OAM_IP}]"
+fi
+
 
 
 kubectl config --kubeconfig ${OUTPUT_FILE} set-cluster stxcluster --server=https://${OAM_IP}:6443 --insecure-skip-tls-verify

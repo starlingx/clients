@@ -15,6 +15,8 @@ TAG_FILE=docker_image_version.sh
 WORK_DIR='.'
 custom_conf_file=0
 explicit_client_type=0
+override_platform_image=0
+override_application_image=0
 
 # The script may be called from locations other
 # than its own folder, so build the full path to
@@ -39,9 +41,11 @@ usage(){
     echo "                  (default value is admin-openrc.sh)"
     echo "-k k8s_file       kubernetis config file"
     echo "                  (default value is temp-kubeconfig)"
+    echo "-p <image>        override platform docker image"
+    echo "-a <image>        override application docker image"
 }
 
-while getopts ":hr:w:o:t:k:" opt; do
+while getopts ":hr:w:o:t:k:p:a:" opt; do
     case $opt in
         h)
             usage
@@ -63,6 +67,14 @@ while getopts ":hr:w:o:t:k:" opt; do
             ;;
         k)
             K8S_FILE=${OPTARG}
+            ;;
+        p)
+            PLATFORM_IMAGE=${OPTARG}
+            override_platform_image=1
+            ;;
+        a)
+            APPLICATION_IMAGE=${OPTARG}
+            override_application_image=1
             ;;
         *)
             echo "Invalid parameter provided"
@@ -136,3 +148,11 @@ fi
 
 echo "source ${PATH_TO_SCRIPT}/$ALIAS_FILE" >> $CONF_FILE
 echo "source ${PATH_TO_SCRIPT}/$TAG_FILE" >> $CONF_FILE
+
+if [[ $override_platform_image -eq 1 ]]; then
+    echo "export PLATFORM_DOCKER_IMAGE=\"${PLATFORM_IMAGE}\"" >> $CONF_FILE
+fi
+
+if [[ $override_application_image -eq 1 ]]; then
+    echo "export APPLICATION_DOCKER_IMAGE=\"${APPLICATION_IMAGE}\"" >> $CONF_FILE
+fi
