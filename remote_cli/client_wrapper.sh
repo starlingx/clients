@@ -38,7 +38,15 @@ OS_AUTH_URL OS_USERNAME OS_INTERFACE OS_PROJECT_DOMAIN_NAME
 OS_AUTH_TYPE
 EOF
 
-COMMAND_ENV=""
+# We initialize the environment variable list with the OS_ENDPOINT_TYPE set
+# "publicURL" because dcmanager defaults to "internalURL" if not overridden
+# by a parameter to the command itself or by the environment variable.
+# For remote access the endpoint-type must always be publicURL, but the
+# environment variable is not part of the set of variables present in the
+# platform RC file downloaded from Horizon.
+# In order for dcmanager to work properly, we manually set this variable
+# to the correct value.
+COMMAND_ENV="-e OS_ENDPOINT_TYPE=publicURL"
 
 for exp in $EXPORTS; do
     # If variable is not defined, don't pass it over to the container
