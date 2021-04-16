@@ -7,6 +7,8 @@
 #
 
 KUBE_CFG_PATH="/root/.kube/config"
+HELM_CONFIG_PATH="/root/.config/helm"
+HELM_CACHE_PATH="/root/.cache/helm"
 
 SHELL_TYPE=$(uname -s)
 
@@ -16,9 +18,9 @@ if [[ "$CONFIG_TYPE" = "platform" ]]; then
     if [[ "${SHELL_TYPE}" == *"CYGWIN"* ]]; then
         # On Windows 10, native docker needs the full windows path, not the UNIX one,
         # so we pass the UNIX path through cygpath
-        VOLUME_LIST="--volume $(cygpath -m ${OSC_WORKDIR}):/wd --volume $(cygpath -m ${K8S_CONFIG_FILE}):${KUBE_CFG_PATH}"
+        VOLUME_LIST="--volume $(cygpath -m ${OSC_WORKDIR}):/wd --volume $(cygpath -m ${K8S_CONFIG_FILE}):${KUBE_CFG_PATH} --volume $(cygpath -m ${OSC_WORKDIR}/.helm):${HELM_CONFIG_PATH} --volume $(cygpath -m ${OSC_WORKDIR}/.cache):${HELM_CACHE_PATH}"
     else
-        VOLUME_LIST="--volume ${OSC_WORKDIR}:/wd --volume ${K8S_CONFIG_FILE}:${KUBE_CFG_PATH}"
+        VOLUME_LIST="--volume ${OSC_WORKDIR}:/wd --volume ${K8S_CONFIG_FILE}:${KUBE_CFG_PATH} --volume ${OSC_WORKDIR}/.helm:${HELM_CONFIG_PATH} --volume ${OSC_WORKDIR}/.cache:${HELM_CACHE_PATH}"
     fi
 else
     CLIENT_IMAGE_NAME="${APPLICATION_DOCKER_IMAGE}"
