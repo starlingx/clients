@@ -37,7 +37,7 @@ read -d '' EXPORTS << EOF
 OS_PASSWORD OS_PROJECT_DOMAIN_ID OS_PROJECT_ID OS_REGION_NAME
 OS_USER_DOMAIN_NAME OS_PROJECT_NAME OS_IDENTITY_API_SERVICE
 OS_AUTH_URL OS_USERNAME OS_INTERFACE OS_PROJECT_DOMAIN_NAME
-OS_AUTH_TYPE
+OS_AUTH_TYPE OS_CACERT
 EOF
 
 # We initialize the environment variable list with the OS_ENDPOINT_TYPE set
@@ -49,6 +49,11 @@ EOF
 # In order for dcmanager to work properly, we manually set this variable
 # to the correct value.
 COMMAND_ENV="-e OS_ENDPOINT_TYPE=publicURL"
+
+# the REQUESTS_CA_BUNDLE is required to the fm client
+if [[ ! -z "$(printenv "OS_CACERT")" ]]; then
+    COMMAND_ENV="$COMMAND_ENV -e REQUESTS_CA_BUNDLE=$(printenv "OS_CACERT")"
+fi
 
 for exp in $EXPORTS; do
     # If variable is not defined, don't pass it over to the container
