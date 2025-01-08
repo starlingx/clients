@@ -6,15 +6,25 @@
       - stx-bandit-jobs
     check:
       jobs:
-        - openstack-tox-linters
-        - openstack-tox-pep8
+        - stx-clients-tox-linters
+        - stx-clients-tox-pep8
     gate:
       jobs:
-        - openstack-tox-linters
-        - openstack-tox-pep8
+        - stx-clients-tox-linters
+        - stx-clients-tox-pep8
     post:
       jobs:
         - stx-clients-upload-git-mirror
+
+- job:
+    name: stx-clients-tox-linters
+    parent: openstack-tox-linters
+    nodeset: debian-bullseye
+
+- job:
+    name: stx-clients-tox-pep8
+    parent: openstack-tox-pep8
+    nodeset: debian-bullseye
 
 - job:
     name: stx-clients-upload-git-mirror
