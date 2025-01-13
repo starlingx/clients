@@ -6,12 +6,12 @@
       - stx-bandit-jobs
     check:
       jobs:
-        - openstack-tox-linters
-        - openstack-tox-pep8
+        - starlingx-common-tox-linters
+        - starlingx-common-tox-pep8
     gate:
       jobs:
-        - openstack-tox-linters
-        - openstack-tox-pep8
+        - starlingx-common-tox-linters
+        - starlingx-common-tox-pep8
     post:
       jobs:
         - stx-clients-upload-git-mirror
