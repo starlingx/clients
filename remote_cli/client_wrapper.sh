@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Copyright (c) 2019 Wind River Systems, Inc.
+# Copyright (c) 2019,2025 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -39,6 +39,9 @@ OS_USER_DOMAIN_NAME OS_PROJECT_NAME OS_IDENTITY_API_SERVICE
 OS_AUTH_URL OS_USERNAME OS_INTERFACE OS_PROJECT_DOMAIN_NAME
 OS_AUTH_TYPE OS_CACERT
 EOF
+
+# Append CLI-specific environment variables
+EXPORTS+=" CLI_CONFIRMATIONS"
 
 # We initialize the environment variable list with the OS_ENDPOINT_TYPE set
 # "publicURL" because dcmanager defaults to "internalURL" if not overridden
