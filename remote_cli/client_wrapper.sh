@@ -87,12 +87,18 @@ else
     SHELL_COMMAND="docker"
 fi
 
+cmd=""
+for arg in "$@"; do
+    printf -v esc '%q ' "$arg"
+    cmd+="$esc"
+done
+
 if [[ "$FORCE_SHELL" == "true" ]]; then
-    exec ${SHELL_COMMAND} run --rm --network host -ti ${COMMAND_ENV} ${VOLUME_LIST} --entrypoint /bin/bash --workdir /wd ${CLIENT_IMAGE_NAME} -c "$*"
+    exec ${SHELL_COMMAND} run --rm --network host -ti ${COMMAND_ENV} ${VOLUME_LIST} --entrypoint /bin/bash --workdir /wd ${CLIENT_IMAGE_NAME} -c "${cmd}"
 elif [[ "$FORCE_NO_SHELL" == "true" ]]; then
-    exec ${SHELL_COMMAND} run --rm --network host -t ${COMMAND_ENV} ${VOLUME_LIST} --entrypoint /bin/bash --workdir /wd ${CLIENT_IMAGE_NAME} -c "$*"
+    exec ${SHELL_COMMAND} run --rm --network host -t ${COMMAND_ENV} ${VOLUME_LIST} --entrypoint /bin/bash --workdir /wd ${CLIENT_IMAGE_NAME} -c "${cmd}"
 elif [ -z "$2" ]; then
-    exec ${SHELL_COMMAND} run --rm --network host -ti ${COMMAND_ENV} ${VOLUME_LIST} --entrypoint /bin/bash --workdir /wd ${CLIENT_IMAGE_NAME} -c "$*"
+    exec ${SHELL_COMMAND} run --rm --network host -ti ${COMMAND_ENV} ${VOLUME_LIST} --entrypoint /bin/bash --workdir /wd ${CLIENT_IMAGE_NAME} -c "${cmd}"
 else
-    exec ${SHELL_COMMAND} run --rm --network host -t ${COMMAND_ENV} ${VOLUME_LIST} --entrypoint /bin/bash --workdir /wd ${CLIENT_IMAGE_NAME} -c "$*"
+    exec ${SHELL_COMMAND} run --rm --network host -t ${COMMAND_ENV} ${VOLUME_LIST} --entrypoint /bin/bash --workdir /wd ${CLIENT_IMAGE_NAME} -c "${cmd}"
 fi
