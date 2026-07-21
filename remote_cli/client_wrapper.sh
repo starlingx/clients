@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Copyright (c) 2019,2025 Wind River Systems, Inc.
+# Copyright (c) 2019-2021,2025-2026 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -41,7 +41,10 @@ OS_AUTH_TYPE OS_CACERT
 EOF
 
 # Append CLI-specific environment variables
-EXPORTS+=" CLI_CONFIRMATIONS"
+EXPORTS+=" CLI_CONFIRMATIONS IS_REMOTE"
+
+# Append OIDC-related environment variables
+EXPORTS+=" OIDC_CLIENT_ID OIDC_CLIENT_SECRET OIDC_ISSUER_CA OIDC_ISSUER_URL"
 
 # We initialize the environment variable list with the OS_ENDPOINT_TYPE set
 # "publicURL" because dcmanager defaults to "internalURL" if not overridden
@@ -51,17 +54,19 @@ EXPORTS+=" CLI_CONFIRMATIONS"
 # platform RC file downloaded from Horizon.
 # In order for dcmanager to work properly, we manually set this variable
 # to the correct value.
-COMMAND_ENV="-e OS_ENDPOINT_TYPE=publicURL"
+# Use an array to avoid word-splitting of values containing special
+# characters (e.g. base64 '=' padding in OIDC_ISSUER_CA, '://' in URLs).
+COMMAND_ENV_ARGS=(-e OS_ENDPOINT_TYPE=publicURL)
 
 # the REQUESTS_CA_BUNDLE is required to the fm client
 if [[ ! -z "$(printenv "OS_CACERT")" ]]; then
-    COMMAND_ENV="$COMMAND_ENV -e REQUESTS_CA_BUNDLE=$(printenv "OS_CACERT")"
+    COMMAND_ENV_ARGS+=(-e "REQUESTS_CA_BUNDLE=$(printenv "OS_CACERT")")
 fi
 
 for exp in $EXPORTS; do
     # If variable is not defined, don't pass it over to the container
     if [[ ! -z "$(printenv $exp)" ]]; then
-        COMMAND_ENV="$COMMAND_ENV -e $exp=$(printenv $exp)"
+        COMMAND_ENV_ARGS+=(-e "$exp=$(printenv $exp)")
     fi
 done
 
@@ -94,11 +99,11 @@ for arg in "$@"; do
 done
 
 if [[ "$FORCE_SHELL" == "true" ]]; then
-    exec ${SHELL_COMMAND} run --rm --network host -ti ${COMMAND_ENV} ${VOLUME_LIST} --entrypoint /bin/bash --workdir /wd ${CLIENT_IMAGE_NAME} -c "${cmd}"
+    exec ${SHELL_COMMAND} run --rm --network host -ti "${COMMAND_ENV_ARGS[@]}" ${VOLUME_LIST} --entrypoint /bin/bash --workdir /wd ${CLIENT_IMAGE_NAME} -c "${cmd}"
 elif [[ "$FORCE_NO_SHELL" == "true" ]]; then
-    exec ${SHELL_COMMAND} run --rm --network host -t ${COMMAND_ENV} ${VOLUME_LIST} --entrypoint /bin/bash --workdir /wd ${CLIENT_IMAGE_NAME} -c "${cmd}"
+    exec ${SHELL_COMMAND} run --rm --network host -t "${COMMAND_ENV_ARGS[@]}" ${VOLUME_LIST} --entrypoint /bin/bash --workdir /wd ${CLIENT_IMAGE_NAME} -c "${cmd}"
 elif [ -z "$2" ]; then
-    exec ${SHELL_COMMAND} run --rm --network host -ti ${COMMAND_ENV} ${VOLUME_LIST} --entrypoint /bin/bash --workdir /wd ${CLIENT_IMAGE_NAME} -c "${cmd}"
+    exec ${SHELL_COMMAND} run --rm --network host -ti "${COMMAND_ENV_ARGS[@]}" ${VOLUME_LIST} --entrypoint /bin/bash --workdir /wd ${CLIENT_IMAGE_NAME} -c "${cmd}"
 else
-    exec ${SHELL_COMMAND} run --rm --network host -t ${COMMAND_ENV} ${VOLUME_LIST} --entrypoint /bin/bash --workdir /wd ${CLIENT_IMAGE_NAME} -c "${cmd}"
+    exec ${SHELL_COMMAND} run --rm --network host -t "${COMMAND_ENV_ARGS[@]}" ${VOLUME_LIST} --entrypoint /bin/bash --workdir /wd ${CLIENT_IMAGE_NAME} -c "${cmd}"
 fi

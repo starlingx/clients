@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Copyright (c) 2019 Wind River Systems, Inc.
+# Copyright (c) 2019-2020,2026 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -131,6 +131,7 @@ else
 fi
 
 echo "export CONFIG_TYPE=${CONFIG_TYPE}" >> $CONF_FILE
+echo "export IS_REMOTE=true" >> $CONF_FILE
 
 if [[ $WORK_DIR = '/'* ]]; then
     echo "export OSC_WORKDIR=${WORK_DIR}" >> $CONF_FILE

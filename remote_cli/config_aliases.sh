@@ -1,7 +1,7 @@
 #!/bin/bash
 
 #
-# Copyright (c) 2019 Wind River Systems, Inc.
+# Copyright (c) 2019-2021,2023,2026 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -16,7 +16,7 @@ else
 fi
 
 if [[ "$CONFIG_TYPE" = "platform" ]]; then
-    SERVICES="system fm openstack dcmanager kubectl helm oidc-auth sw-manager software"
+    SERVICES="system fm openstack dcmanager kubectl helm oidc-auth sw-manager software kubeconfig-setup"
     alias "platform_shell"="${PATH_TO_SCRIPT}/client_wrapper.sh /bin/bash"
 else
     SERVICES="openstack nova cinder glance heat"
