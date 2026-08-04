@@ -8,10 +8,22 @@
       jobs:
         - starlingx-common-tox-linters
         - starlingx-common-tox-pep8
+        - clients-tox-bandit
+        - clients-tox-coverage
+        - clients-tox-linters-trixie
+        - clients-tox-pep8-trixie
+        - clients-tox-bandit-trixie
+        - clients-tox-coverage-trixie
     gate:
       jobs:
         - starlingx-common-tox-linters
         - starlingx-common-tox-pep8
+        - clients-tox-bandit
+        - clients-tox-coverage
+        - clients-tox-linters-trixie
+        - clients-tox-pep8-trixie
+        - clients-tox-bandit-trixie
+        - clients-tox-coverage-trixie
     post:
       jobs:
         - stx-clients-upload-git-mirror
@@ -107,3 +119,54 @@
           jKQs939Df8as6OwqUPTVTIOIirkSO8Kt92E1MhOlFqgBhODPQIG3a5fDrbOjrswY7/MjS
           +CSB53ZRDAhydIvZZFuNxMxnkzoATbLQtM2yYc+H2z9hhom+NnZOVjargUJ66gFT63l/c
           dLUAOJz3NSxokvQGcjft1lL0uOfC6L6Lk9ppltKysCGJsOaHl06aC39dJoFjkw=
+
+- job:
+    name: clients-tox-bandit
+    parent: tox
+    description: Run bandit security analysis
+    nodeset: debian-bullseye
+    vars:
+      tox_envlist: bandit
+
+- job:
+    name: clients-tox-coverage
+    parent: tox
+    description: Run all tests with coverage analysis
+    nodeset: debian-bullseye
+    vars:
+      tox_envlist: coverage
+    post-run: tests/playbooks/upload-coverage-reports.yaml
+
+- job:
+    name: clients-tox-linters-trixie
+    parent: openstack-tox-py313
+    description: Run linters (Trixie)
+    nodeset: debian-trixie-8GB
+    vars:
+      tox_envlist: linters-trixie
+      tox_inline_comments: false
+
+- job:
+    name: clients-tox-pep8-trixie
+    parent: openstack-tox-py313
+    description: Run style checks (Trixie)
+    nodeset: debian-trixie-8GB
+    vars:
+      tox_envlist: pep8-trixie
+
+- job:
+    name: clients-tox-bandit-trixie
+    parent: openstack-tox-py313
+    description: Run bandit security analysis (Trixie)
+    nodeset: debian-trixie-8GB
+    vars:
+      tox_envlist: bandit-trixie
+
+- job:
+    name: clients-tox-coverage-trixie
+    parent: openstack-tox-py313
+    description: Run all tests with coverage analysis (Trixie)
+    nodeset: debian-trixie-8GB
+    vars:
+      tox_envlist: coverage-trixie
+    post-run: tests/playbooks/upload-coverage-reports.yaml
